@@ -10,7 +10,7 @@ import Zoomable
 
 struct ContentView: View {
     var body: some View {
-        Zoomable {
+        Zoomable(allowZoomOutBeyondFit: false) {
             Image("bird_wildlife_sky_clouds")
         }
     }

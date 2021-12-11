@@ -11,16 +11,20 @@ import SwiftUI
 public struct Zoomable<Content: View>: UIViewControllerRepresentable {
     let host: UIHostingController<Content>
     let zoomRange: ClosedRange<CGFloat>
+    let allowZoomOutBeyondFit: Bool
     
     public init(zoomRange: ClosedRange<CGFloat> = 0.1...10,
-         @ViewBuilder content: () -> Content) {
+                allowZoomOutBeyondFit: Bool = true,
+                @ViewBuilder content: () -> Content) {
         self.zoomRange = zoomRange
+        self.allowZoomOutBeyondFit = allowZoomOutBeyondFit
         self.host = UIHostingController(rootView: content())
     }
     
     public func makeUIViewController(context: Context) -> ZoomableViewController {
         ZoomableViewController(view: self.host.view,
-                               zoomRange: self.zoomRange)
+                               zoomRange: self.zoomRange,
+                               allowZoomOutBeyondFit: self.allowZoomOutBeyondFit)
     }
     
     public func updateUIViewController(_ uiViewController: ZoomableViewController, context: Context) {
@@ -32,13 +36,16 @@ public class ZoomableViewController : UIViewController, UIScrollViewDelegate {
     let scrollView = UIScrollView()
     let contentView: UIView
     let originalContentSize: CGSize
+    let allowZoomOutBeyondFit: Bool
     
     init(view: UIView,
-         zoomRange: ClosedRange<CGFloat>) {
+         zoomRange: ClosedRange<CGFloat>,
+         allowZoomOutBeyondFit: Bool) {
         self.scrollView.minimumZoomScale = zoomRange.lowerBound
         self.scrollView.maximumZoomScale = zoomRange.upperBound
         self.contentView = view
         self.originalContentSize = view.intrinsicContentSize
+        self.allowZoomOutBeyondFit = allowZoomOutBeyondFit
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -100,6 +107,9 @@ public class ZoomableViewController : UIViewController, UIScrollViewDelegate {
         
         guard self.fitZoomScale != zoom else { return }
         self.fitZoomScale = zoom
+        if !allowZoomOutBeyondFit {
+            self.scrollView.minimumZoomScale = zoom
+        }
         
         self.scrollView.zoomScale = 1.0
         self.scrollView.contentSize = originalContentSize
