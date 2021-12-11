@@ -23,7 +23,9 @@ public struct Zoomable<Content: View>: UIViewControllerRepresentable {
                                zoomRange: self.zoomRange)
     }
     
-    public func updateUIViewController(_ uiViewController: ZoomableViewController, context: Context) {}
+    public func updateUIViewController(_ uiViewController: ZoomableViewController, context: Context) {
+        uiViewController.view.layoutIfNeeded()
+    }
 }
 
 public class ZoomableViewController : UIViewController, UIScrollViewDelegate {
