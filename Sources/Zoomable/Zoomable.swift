@@ -131,6 +131,10 @@ public final class ZoomableViewController<Content: View>: UIViewController, UISc
     ) {
         let host = UIHostingController(rootView: rootView)
         host.sizingOptions = .intrinsicContentSize
+        // This controller zooms and scrolls the content itself, so the content must not also be inset by the
+        // safe area it inherits from its parent. Otherwise it is laid out in a taller view than the
+        // `intrinsicContentSize` measured below, and starts off-centre until the first zoom.
+        host.safeAreaRegions = []
         self.hostingController = host
         self.originalContentSize = host.view.intrinsicContentSize
         self.initialZoomLevel = initialZoomLevel
