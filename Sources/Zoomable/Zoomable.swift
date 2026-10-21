@@ -208,7 +208,14 @@ public final class ZoomableViewController<Content: View>: UIViewController, UISc
     }
 
     private func centerSmallContents() {
-        let contentSize = contentView.frame.size
+        // Derived from the original size and the zoom scale, not read from the hosting view's frame. That frame
+        // is zero until SwiftUI has laid the content out, which takes longer for a very large image. Centering
+        // against a zero size insets the content by half the screen, so it starts with its top leading corner
+        // in the middle, and nothing re-centres it until the first zoom.
+        let contentSize = CGSize(
+            width: originalContentSize.width * scrollView.zoomScale,
+            height: originalContentSize.height * scrollView.zoomScale
+        )
         let offsetX = max((scrollView.bounds.width - contentSize.width) * 0.5, 0)
         let offsetY = max((scrollView.bounds.height - contentSize.height) * 0.5, 0)
         let inset = UIEdgeInsets(top: offsetY, left: offsetX, bottom: offsetY, right: offsetX)
